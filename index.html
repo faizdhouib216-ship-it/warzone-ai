@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARZONE AI — Warzone Intelligence</title>
+<meta name="theme-color" content="#00ff88">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<script>
+// Inline manifest via blob
+const manifest = {
+  name: "Warzone AI",
+  short_name: "Warzone AI",
+  description: "Ton assistant IA Warzone Saison 4 Black Ops 7 2026",
+  start_url: "./",
+  display: "fullscreen",
+  orientation: "portrait",
+  background_color: "#040810",
+  theme_color: "#00ff88",
+  icons: [
+    { src: "https://faizdhouib216-ship-it.github.io/warzone-ai/icon-192x192.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+    { src: "https://faizdhouib216-ship-it.github.io/warzone-ai/icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
+  ]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+const manifestURL = URL.createObjectURL(blob);
+document.write('<link rel="manifest" href="' + manifestURL + '">');
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --green: #00ff88; --green-dim: #00cc66; --orange: #ff6b00; --bg: #040810; --border: rgba(0,255,136,0.15); --text: #c8e0ff; --text-dim: #4a6080; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  .header { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--border); background: rgba(4,8,16,0.9); flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 36px; height: 36px; border: 2px solid var(--green); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 900; color: var(--green); clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%); background: rgba(0,255,136,0.05); animation: logoPulse 3s ease-in-out infinite; }
+  @keyframes logoPulse { 0%, 100% { box-shadow: 0 0 10px rgba(0,255,136,0.3); } 50% { box-shadow: 0 0 25px rgba(0,255,136,0.7); } }
+  .logo-text { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 18px; color: var(--green); letter-spacing: 3px; text-shadow: 0 0 20px rgba(0,255,136,0.5); }
+  .logo-sub { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 2px; }
+  .status-bar { display: flex; align-items: center; gap: 16px; font-family: 'Share Tech Mono', monospace; font-size: 10px; }
+  .status-item { display: flex; align-items: center; gap: 5px; color: var(--text-dim); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+  .topics { position: relative; z-index: 10; display: flex; gap: 6px; padding: 10px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--border); background: rgba(8,15,26,0.8); scrollbar-width: none; flex-shrink: 0; }
+  .topics::-webkit-scrollbar { display: none; }
+  .topic-btn { flex-shrink: 0; padding: 5px 12px; background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.2); color: var(--green-dim); font-family: 'Share Tech Mono', monospace; font-size: 10px; cursor: pointer; letter-spacing: 1px; clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); transition: all 0.2s; white-space: nowrap; }
+  .topic-btn:hover, .topic-btn:active { background: rgba(0,255,136,0.15); border-color: var(--green); color: var(--green); }
+  .chat-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; position: relative; z-index: 10; min-height: 0; }
+  .welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; text-align: center; padding: 20px; }
+  .welcome-icon { font-size: 48px; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .welcome h2 { font-family: 'Orbitron', monospace; font-size: 20px; color: var(--green); letter-spacing: 3px; margin-bottom: 8px; }
+  .welcome p { color: var(--text-dim); font-size: 13px; font-family: 'Share Tech Mono', monospace; line-height: 1.6; max-width: 400px; }
+  .welcome-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; }
+  .welcome-tag { padding: 4px 10px; border: 1px solid rgba(255,107,0,0.3); color: var(--orange); font-family: 'Share Tech Mono', monospace; font-size: 10px; background: rgba(255,107,0,0.05); }
+  .message { display: flex; gap: 10px; margin-bottom: 16px; animation: msgIn 0.3s ease-out; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .message.user { flex-direction: row-reverse; }
+  .msg-avatar { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); }
+  .message.user .msg-avatar { background: rgba(255,107,0,0.2); border: 1px solid var(--orange); color: var(--orange); }
+  .message.ai .msg-avatar { background: rgba(0,255,136,0.1); border: 1px solid var(--green); color: var(--green); }
+  .msg-bubble { max-width: 90%; padding: 10px 14px; font-size: 13px; line-height: 1.7; word-break: break-word; }
+  .message.user .msg-bubble { background: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.25); clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); }
+  .message.ai .msg-bubble { background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.2); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+  .msg-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 2px; margin-bottom: 4px; }
+  .message.ai .msg-label { color: var(--green); }
+  .message.user .msg-label { color: var(--orange); text-align: right; }
+  .typing { display: flex; gap: 4px; padding: 8px 0; align-items: center; }
+  .typing span { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: typingDot 1.4s ease-in-out infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingDot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
+  .input-area { position: relative; z-index: 10; padding: 12px 16px; border-top: 1px solid var(--border); background: rgba(4,8,16,0.95); flex-shrink: 0; }
+  .input-wrapper { display: flex; gap: 8px; align-items: flex-end; background: rgba(12,21,32,0.8); border: 1px solid rgba(0,255,136,0.2); padding: 8px 12px; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); }
+  .input-wrapper:focus-within { border-color: rgba(0,255,136,0.5); box-shadow: 0 0 20px rgba(0,255,136,0.1); }
+  .input-wrapper textarea { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px; resize: none; max-height: 100px; min-height: 20px; line-height: 1.5; }
+  .input-wrapper textarea::placeholder { color: var(--text-dim); font-family: 'Share Tech Mono', monospace; font-size: 11px; }
+  .send-btn { width: 36px; height: 36px; background: var(--green); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); transition: all 0.2s; flex-shrink: 0; }
+  .send-btn:hover { background: #00ffaa; box-shadow: 0 0 20px rgba(0,255,136,0.5); }
+  .send-btn svg { width: 16px; height: 16px; fill: var(--bg); }
+  .input-hint { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 6px; text-align: center; letter-spacing: 1px; }
+  .msg-bubble strong { color: var(--green); font-weight: 700; }
+  .msg-bubble em { color: var(--orange); font-style: normal; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">WZ</div>
+    <div>
+      <div class="logo-text">WARZONE AI</div>
+      <div class="logo-sub">SAISON 4 · BLACK OPS 7 · 2026</div>
+    </div>
+  </div>
+  <div class="status-bar">
+    <div class="status-item"><div class="status-dot"></div><span>EN LIGNE</span></div>
+    <div class="status-item">⚡ WZ2026</div>
+  </div>
+</div>
+<div class="topics">
+  <button class="topic-btn" onclick="quickAsk('params manette')">⚙️ PARAMS MANETTE</button>
+  <button class="topic-btn" onclick="quickAsk('ranked')">🏆 RANKED</button>
+  <button class="topic-btn" onclick="quickAsk('meta armes')">🔫 META ARMES</button>
+  <button class="topic-btn" onclick="quickAsk('mouvements')">🏃 MOUVEMENTS</button>
+  <button class="topic-btn" onclick="quickAsk('nerfs buffs')">⚖️ NERFS ET BUFFS</button>
+  <button class="topic-btn" onclick="quickAsk('maj saison 4')">🆕 MAJ S4</button>
+  <button class="topic-btn" onclick="quickAsk('sniper')">🎯 SNIPER</button>
+  <button class="topic-btn" onclick="quickAsk('kd ratio')">📈 KD RATIO</button>
+  <button class="topic-btn" onclick="quickAsk('loadout smg')">⚡ SMG</button>
+  <button class="topic-btn" onclick="quickAsk('conseils debutant')">💡 TIPS</button>
+</div>
+<div class="chat-container" id="chatContainer">
+  <div class="welcome" id="welcome">
+    <div class="welcome-icon">🎮</div>
+    <h2>WARZONE AI ACTIVÉ</h2>
+    <p>Ton assistant Warzone — Saison 4 Black Ops 7 2026. Armes, ranked, mouvements, paramètres... tout est là !</p>
+    <div class="welcome-tags">
+      <span class="welcome-tag">SAISON 4 2026</span>
+      <span class="welcome-tag">META À JOUR</span>
+      <span class="welcome-tag">PRO TIPS</span>
+      <span class="welcome-tag">BLACK OPS 7</span>
+    </div>
+  </div>
+</div>
+<div class="input-area">
+  <div class="input-wrapper">
+    <textarea id="userInput" placeholder="Pose ta question sur Warzone..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+    </button>
+  </div>
+  <div class="input-hint">ENTER pour envoyer · SHIFT+ENTER pour nouvelle ligne</div>
+</div>
+<script>
+const KB = {
+  "params manette": "🎮 **PARAMÈTRES MANETTE WARZONE 2026**\n\n*Sensibilité (sur 5) :*\n• Débutant : **3**\n• Intermédiaire : **4**\n• Avancé : **5**\n• Multiplicateur ADS : **0.80x**\n\n*Zone morte (sur 100) :*\n• Gauche : **5-10**\n• Droite : **5-10**\n• Le plus bas possible sans drift\n\n*Aide à la visée :*\n• **Focalisée** ⭐ — meilleure pour Warzone\n• Standard — pour débutants\n\n*Courbe de réponse :* Linéaire\n*Triggers :* Active les trigger stops si manette pro",
+  "ranked": "🏆 **RANKED WARZONE — SAISON 4 2026**\n\n*Tiers :* Bronze → Argent → Or → Platine → Diamant → Crimson → **Top 250**\n\n*Prérequis :*\n• **50 victoires** en matchmaking normal\n• RICOCHET Anti-Cheat actif\n\n*Armes autorisées :*\n• Fusils d'assaut, SMG, Pistolets, CàC\n• Sniper en Recherche & Destruction\n\n*Récompenses S4 :*\n• Camouflages : Leviathan, Visitors, Rosefire\n• Cartes de visite Top 250 animées\n\n*Conseils :* Joue les objectifs, reste avec ton équipe, joue meta",
+  "meta armes": "🔫 **META ARMES SAISON 4 2026**\n\n*🔫 FUSILS D'ASSAUT :*\n• 🥇 **MXR-17** — 24.1% Pick ⭐\n• 🥈 **DS20 MIRAGE** — 11.7% Pick\n• 🥉 **AK-27** — 3.7% Pick\n• 4. **VOYAK KT-3** — 1.3% Pick\n\n*⚡ MITRAILLETTES :*\n• 🥇 **DRAVEC 45** — 20.6% Pick ⭐\n• 🥈 **MPC-25** — 10.6% Pick\n• 🥉 **CARBON 57** — 3.8% Pick\n\n*🎯 SNIPERS :*\n• 🥇 **STRIDER 300** — 3.6% Pick\n• 🥈 **HAWKER HX** — 1.2% Pick\n\n*Combo parfait :* **MXR-17 + DRAVEC 45** 🏆",
+  "mouvements": "🏃 **MOUVEMENTS AVANCÉS WARZONE**\n\n• **Slide Cancel** — Sprint → Accroupi → Sprint\n• **Bunny Hop** — Saute au moment de l'atterrissage\n• **Drop Shot** — S'allonger en tirant\n• **Jiggle Peek** — Sortir/rentrer rapidement d'un angle\n• **Strafe** — Bouger latéralement pendant les échanges\n• **Pré-viser** — Place ta visée à hauteur de tête avant de dépasser\n\n*Conseil clé :* Ne reste JAMAIS immobile en combat !",
+  "nerfs buffs": "⚖️ **NERFS ET BUFFS S4 — 03/06/2026**\n\n*✅ BUFFÉES :*\n• AK-27, DS20 MIRAGE, EGRT-17, M15 MOD 0\n• MK35 ISR, MXR-17, PEACEKEEPER MK1\n• VOYAK KT-3, DRAVEC 45, MPC-25\n• REV-46, M10 BREACHER\n\n*❌ NERFÉES :*\n• **KOGOT-7** — évite cette saison\n• **MK.78** — évite cette saison\n\n*Conseil :* Joue MXR-17 ou DRAVEC 45 — toutes les deux buffées S4 ! 🏆",
+  "maj saison 4": "🆕 **SAISON 4 BLACK OPS 7 — JUIN 2026**\n\n*Nouveaux modes :*\n• Escarmouche 6v6\n• Plan Tireur d'Élite en Équipe\n• Combat au Couteau\n• Pluie Métallique — pilote un aéronef\n• Rogue Run — mode roguelite\n\n*Ranked S4 :*\n• Refonte du système SR\n• Plus de transparence gains/pertes\n\n*Nouvelle carte :*\n• **Nuked** — version corrompue de Nuketown\n\n*Camouflages :* Leviathan, Visitors, Rosefire",
+  "sniper": "🎯 **SNIPERS WARZONE S4 2026**\n\n*Tier List :*\n• 🥇 **STRIDER 300** — 3.6% Pick ⭐\n• 🥈 **HAWKER HX** — 1.2% Pick\n• 🥉 **VS RECON** — 0.5% Pick\n• 4. XR-3 ION, HDR, VICTUS XMR\n\n*Technique manette :*\n• Quick scope : ADS + tirer immédiatement\n• Sensibilité ADS : 0.60x\n• Change de position après chaque kill\n\n*Loadout :* STRIDER 300 + DRAVEC 45",
+  "kd ratio": "📈 **AMÉLIORER SON KD**\n\n• Évite les fights perdus\n• Joue les positions en hauteur\n• Pré-vise à hauteur de tête\n• Finis tes kills\n• Reste avec ton équipe\n\n*Erreurs à éviter :*\n• Courir à découvert\n• Rester immobile\n• Ignorer le mini-map\n\n*Objectifs :*\n• KD 1.0 = moyenne\n• KD 2.0+ = bon joueur\n• KD 3.0+ = très bon joueur",
+  "loadout smg": "⚡ **MEILLEURES SMG S4 2026**\n\n• 🥇 **DRAVEC 45** — 20.6% Pick ⭐\n• 🥈 **MPC-25** — 10.6% Pick\n• 🥉 **CARBON 57** — 3.8% Pick\n• 4. KOGOT-7 (nerfée)\n• 5. REV-46 (buffée)\n\n*Combo meta :*\n• Primaire : MXR-17\n• Secondaire : DRAVEC 45\n\n*Technique :* Strafe gauche/droite, slide cancel, toujours en mouvement !",
+  "conseils debutant": "💡 **CONSEILS DÉBUTANT WARZONE**\n\n*5 règles d'or :*\n1. Joue avec des écouteurs\n2. Commence par Resurgence\n3. Loot vite, fight intelligemment\n4. Reste avec ton équipe\n5. Règle bien ta manette d'abord\n\n*Erreurs à éviter :*\n• Courir à découvert\n• Rester immobile\n• Ignorer le mini-map\n• Oublier les plaques d'armure\n\n*Progression :* Semaine 1 carte/loot → Semaine 2-4 gunfights → Mois 2 ranked"
+};
+
+function findAnswer(q) {
+  q = q.toLowerCase();
+  if (q.includes('manette') || q.includes('param') || q.includes('sensib') || q.includes('zone morte') || q.includes('aide') || q.includes('setup')) return KB['params manette'];
+  if (q.includes('ranked') || q.includes('class') || q.includes('tier') || q.includes('sr') || q.includes('point')) return KB['ranked'];
+  if (q.includes('arme') || q.includes('meta') || q.includes('fusil') || q.includes('gun') || q.includes('weapon') || (q.includes('meilleur') && !q.includes('smg'))) return KB['meta armes'];
+  if (q.includes('mouv') || q.includes('slide') || q.includes('bunny') || q.includes('drop') || q.includes('jiggle') || q.includes('strafe')) return KB['mouvements'];
+  if (q.includes('nerf') || q.includes('buff') || q.includes('patch') || q.includes('equilibr')) return KB['nerfs buffs'];
+  if (q.includes('maj') || q.includes('mise') || q.includes('saison') || q.includes('nouveaut') || q.includes('s4') || q.includes('update')) return KB['maj saison 4'];
+  if (q.includes('sniper') || q.includes('strider') || q.includes('scope')) return KB['sniper'];
+  if (q.includes('kd') || q.includes('ratio') || q.includes('progress') || q.includes('amelior')) return KB['kd ratio'];
+  if (q.includes('smg') || q.includes('mitrail') || q.includes('dravec') || q.includes('close')) return KB['loadout smg'];
+  if (q.includes('debut') || q.includes('commenc') || q.includes('nouveau') || q.includes('tips') || q.includes('astuce')) return KB['conseils debutant'];
+  return "🎮 Utilise les boutons en haut pour les sujets principaux !\n\n• ⚙️ **Params Manette** — sensibilité sur 5, zone morte sur 100\n• 🏆 **Ranked** — tiers, SR, récompenses S4\n• 🔫 **Meta Armes** — MXR-17, DRAVEC 45, STRIDER 300\n• 🏃 **Mouvements** — slide cancel, bunny hop\n• ⚖️ **Nerfs ET Buffs** — changements S4\n• 🆕 **MAJ S4** — nouveautés juin 2026\n• 🎯 **Sniper** — STRIDER 300\n• 📈 **KD Ratio** — progresser\n• ⚡ **SMG** — DRAVEC 45\n• 💡 **Tips** — conseils débutant";
+}
+
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function quickAsk(q) { document.getElementById('userInput').value = q; sendMessage(); }
+
+function addMessage(role, content) {
+  const container = document.getElementById('chatContainer');
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+  const div = document.createElement('div');
+  div.className = 'message ' + role;
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = role === 'user' ? 'YOU' : 'WZ';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.textContent = role === 'user' ? '[ JOUEUR ]' : '[ WARZONE AI ]';
+  const text = document.createElement('div');
+  text.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+  bubble.appendChild(label);
+  bubble.appendChild(text);
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('chatContainer');
+  const div = document.createElement('div');
+  div.className = 'message ai'; div.id = 'typingIndicator';
+  const avatar = document.createElement('div'); avatar.className = 'msg-avatar'; avatar.textContent = 'WZ';
+  const bubble = document.createElement('div'); bubble.className = 'msg-bubble';
+  const typing = document.createElement('div'); typing.className = 'typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  bubble.appendChild(typing); div.appendChild(avatar); div.appendChild(bubble);
+  container.appendChild(div); container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() { const el = document.getElementById('typingIndicator'); if (el) el.remove(); }
+
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = ''; input.style.height = 'auto';
+  addMessage('user', text);
+  showTyping();
+  setTimeout(() => { removeTyping(); addMessage('ai', findAnswer(text)); }, 600);
+}
+
+if ('serviceWorker' in navigator) {
+  const swCode = `self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });`;
+  const swBlob = new Blob([swCode], {type: 'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+}
+</script>
+</body>
+</html>
